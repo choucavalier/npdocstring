@@ -1,6 +1,6 @@
 from npdocstring import get_funclassdef_nodes
 from npdocstring import get_function_arguments
-from npdocstring import Argument
+from npdocstring import AtrOrArg
 
 
 def test_get_function_arguments():
@@ -12,7 +12,7 @@ def test_get_function_arguments():
 
   args = get_function_arguments(fcnodes[0])
   assert len(args) == 1
-  assert args[0] == Argument(name='file_path', hint='str', default=None)
+  assert args[0] == AtrOrArg(name='file_path', hint='str', default=None)
 
   args = get_function_arguments(fcnodes[-1])
   assert len(args) == 0
@@ -28,7 +28,7 @@ def test_get_function_arguments_with_defaults():
   args = get_function_arguments(fcnodes[0])
   assert len(args) == 2
   assert args[0].default is None
-  assert args[1].default == 'hello'
+  assert args[1].default == "'hello'"
 
   args = get_function_arguments(fcnodes[1])
   assert len(args) == 2
@@ -37,4 +37,4 @@ def test_get_function_arguments_with_defaults():
 
   args = get_function_arguments(fcnodes[2])
   assert len(args) == 1
-  assert args[0].default is 'None'
+  assert args[0].default == 'None'

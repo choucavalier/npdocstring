@@ -8,4 +8,3 @@ column_limit = 79
 coalesce_brackets = True
 join_multiple_lines = True
 spaces_around_power_operator = True
-spaces_around_default_or_named_assign = True
