@@ -62,9 +62,25 @@ def parse_hint(node: ast.AST) -> Union[str, None]:
       hint += parse_hint(node.slice.value.elts[-1])
       return hint
     elif node.value.id == 'List':
+      if node.slice.value is None:
+        return 'list'
       return '{} of {}'.format(
         node.value.id.lower(), parse_hint(node.slice.value)
       )
+    elif node.value.id == 'Tuple':
+      if type(node.slice.value) is ast.Tuple:
+        if len(node.slice.value.elts) == 0:
+          return 'tuple'
+        elif len(node.slice.value.elts) == 1:
+          return 'tuple of ' + parse_hint(node.slice.value.elts[0])
+        else:
+          hint = '('
+          for i in range(len(node.slice.value.elts) - 1):
+            hint += parse_hint(node.slice.value.elts[i]) + ', '
+          hint += parse_hint(node.slice.value.elts[-1]) + ')'
+          return hint
+    else:
+      return 'FIXME'
   elif type(node) is ast.Attribute:
     return '{}.{}'.format(node.value.id, node.attr)
   elif type(node) is ast.NameConstant:
