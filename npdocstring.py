@@ -171,10 +171,13 @@ def generate_function_docstring(
   node: Union[FunctionDef, AsyncFunctionDef]
 ) -> str:
 
-  docstring = '\'\'\'FIXME\n\n'
+  docstring = '\'\'\'FIXME'
 
   arguments = get_function_arguments(node)
-  docstring += make_parameters_string(arguments)
+
+  if len(arguments) > 0:
+    docstring += '\n\n'
+    docstring += make_parameters_string(arguments)
 
   returns = parse_return_hint(node)
 
@@ -219,7 +222,7 @@ def get_class_attributes(constructor: FunctionDef) -> List[AtrOrArg]:
 
 def generate_class_docstring(cnode: ClassDef) -> str:
 
-  docstring = '\'\'\'FIXME\n\n'
+  docstring = '\'\'\'FIXME'
 
   constructor = get_class_constructor(cnode)
 
@@ -229,8 +232,10 @@ def generate_class_docstring(cnode: ClassDef) -> str:
     attributes = get_class_attributes(constructor)
     attributes = [attr for attr in attributes if attr.name not in arg_names]
 
-    docstring += make_parameters_string(arguments)
-    docstring += make_attributes_string(attributes)
+    if len(arguments) > 0 or len(attributes) > 0:
+      docstring += '\n\n'
+      docstring += make_parameters_string(arguments)
+      docstring += make_attributes_string(attributes)
 
   docstring += '\'\'\'\n'
 
