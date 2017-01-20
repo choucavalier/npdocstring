@@ -1,6 +1,6 @@
 # npdocstring
 
-Generate missing docstring ([numpydoc](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt) style) in your **Python** source code.
+Generate missing docstrings ([numpydoc](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt) style) in your **Python** source code.
 
 This program will also parse the `Python 3.X.X` type hints and add them to the
 generated docstring.
