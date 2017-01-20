@@ -2,6 +2,8 @@
 
 Generate missing docstrings ([numpydoc](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt) style) in your **Python** source code.
 
+[![Build Status](https://travis-ci.org/tgy/npdocstring.svg?branch=master)](https://travis-ci.org/tgy/npdocstring)
+
 This program will also parse the `Python 3.X.X` type hints and add them to the
 generated docstring.
 
