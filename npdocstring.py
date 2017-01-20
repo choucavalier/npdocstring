@@ -6,7 +6,7 @@ import ast
 import argparse
 from collections import namedtuple
 from ast import FunctionDef, AsyncFunctionDef, ClassDef
-from typing import List, Union
+from typing import List, Union, Tuple
 
 AtrOrArg = namedtuple('AtrOrArg', ['name', 'hint', 'default'])
 
@@ -40,6 +40,7 @@ def get_funclassdef_nodes(file_content) -> List[ast.AST]:
       if type(node) is ClassDef:
         for sub_node in ast.iter_child_nodes(node):
           if type(sub_node) in [FunctionDef, AsyncFunctionDef]:
+            if sub_node.name == '__init__': continue
             if ast.get_docstring(sub_node) is None: fcnodes.append(sub_node)
 
   return fcnodes
@@ -101,8 +102,9 @@ def node_to_str(node: ast.AST) -> str:
     # raise Exception('node_to_str\n{}'.format(ast.dump(node)))
 
 
-def get_function_arguments(node: Union[FunctionDef, AsyncFunctionDef]
-                           ) -> List[AtrOrArg]:
+def get_function_arguments(
+  node: Union[FunctionDef, AsyncFunctionDef]
+) -> List[AtrOrArg]:
 
   arguments = []
 
@@ -146,8 +148,9 @@ def make_attributes_string(args: List[AtrOrArg]) -> str:
   return make_atrorarg_string(args, 'Attributes')
 
 
-def generate_function_docstring(node: Union[FunctionDef, AsyncFunctionDef]
-                                ) -> str:
+def generate_function_docstring(
+  node: Union[FunctionDef, AsyncFunctionDef]
+) -> str:
 
   docstring = '\'\'\'\n\n'
 
@@ -161,9 +164,7 @@ def generate_function_docstring(node: Union[FunctionDef, AsyncFunctionDef]
     docstring += returns + '\n'
     docstring += '  FIXME\n\n'
 
-  docstring += '\'\'\''
-
-  print(docstring)
+  docstring += '\'\'\'\n'
 
   return docstring
 
@@ -212,18 +213,64 @@ def generate_class_docstring(cnode: ClassDef) -> str:
     docstring += make_parameters_string(arguments)
     docstring += make_attributes_string(attributes)
 
-  docstring += '\'\'\''
-
-  print(docstring)
+  docstring += '\'\'\'\n'
 
   return docstring
 
 
-def integrate_docstrings(
-  docstrings: List[str], file_content: str, indentation: List[int]
+def pad_docstring(
+  docstring: str,
+  fcnode: ast.AST,
+  indentation: List[int]
 ) -> str:
 
-  return ''
+  indentation = indentation[fcnode.lineno - 1] + 2
+
+  lines = docstring.splitlines(keepends=True)
+  for i in range(len(lines)):
+    lines[i] = ' ' * indentation + lines[i]
+
+  return ''.join(lines)
+
+
+def get_fcnode_last_lineno(
+  node: Union[FunctionDef, AsyncFunctionDef, ClassDef],
+  indentation: List[int]
+) -> int:
+
+  lineno = node.body[0].lineno - 1
+
+  while (
+    indentation[lineno] == node.lineno + 2 or
+    indentation[lineno] == 0
+  ): lineno -= 1
+
+  return lineno - 1
+
+
+def integrate_docstrings(
+  docstrings: List[Tuple[ast.AST, str]],
+  file_content: str,
+  indentation: List[int],
+  fcnodes: List[ast.AST]
+) -> str:
+
+  processed = ''
+
+  lines = file_content.splitlines(keepends=True)
+
+  splits = []
+  for node in fcnodes:
+    splits.append(get_fcnode_last_lineno(node, indentation))
+
+  for i, split in enumerate(splits):
+    start_line = 0 if i < 1 else splits[i - 1]
+    processed += ''.join(lines[start_line:split])
+    processed += pad_docstring(docstrings[i], fcnodes[i], indentation)
+
+  processed += ''.join(lines[splits[-1]:])
+
+  return processed
 
 
 def process_file(file_content: str):
@@ -239,7 +286,7 @@ def process_file(file_content: str):
       docstrings.append(generate_class_docstring(node))
 
   new_file_content = integrate_docstrings(
-    docstrings, file_content, indentation
+    docstrings, file_content, indentation, fcnodes
   )
 
   sys.stdout.write(new_file_content)
