@@ -218,17 +218,12 @@ def generate_class_docstring(cnode: ClassDef) -> str:
   return docstring
 
 
-def pad_docstring(
-  docstring: str,
-  fcnode: ast.AST,
-  indentation: List[int]
-) -> str:
-
-  indentation = indentation[fcnode.lineno - 1] + 2
+def pad_docstring(docstring: str, pad: int) -> str:
 
   lines = docstring.splitlines(keepends=True)
   for i in range(len(lines)):
-    lines[i] = ' ' * indentation + lines[i]
+    if len(lines[i]) > 0:
+      lines[i] = pad + lines[i]
 
   return ''.join(lines)
 
@@ -266,7 +261,8 @@ def integrate_docstrings(
   for i, split in enumerate(splits):
     start_line = 0 if i < 1 else splits[i - 1]
     processed += ''.join(lines[start_line:split])
-    processed += pad_docstring(docstrings[i], fcnodes[i], indentation)
+    pad = ' ' * indentation[fcnodes[i].lineno - 1]
+    processed += pad_docstring(docstrings[i], pad)
 
   processed += ''.join(lines[splits[-1]:])
 

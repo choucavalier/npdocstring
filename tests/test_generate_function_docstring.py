@@ -13,7 +13,8 @@ Returns
 int
   FIXME
 
-\'\'\''''
+\'\'\'
+'''
 
 
 DEFAULT_FUNCTION_EXPECTED = '''\'\'\'
@@ -31,7 +32,8 @@ Returns
 list of int
   FIXME
 
-\'\'\''''
+\'\'\'
+'''
 
 
 def test_basic_function():
