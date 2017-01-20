@@ -12,6 +12,6 @@ def function_with_no_defaults(a: int, b: List[int]) -> int:
   return sum(b)
 
 
-def function_with_none_default(a: str = None) -> Union[int]:
+def function_with_none_default(a: str = None) -> Union[int, str]:
 
   return a
