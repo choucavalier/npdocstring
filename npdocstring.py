@@ -99,7 +99,6 @@ def node_to_str(node: ast.AST) -> str:
     return repr(node.s)
   else:
     return None
-    # raise Exception('node_to_str\n{}'.format(ast.dump(node)))
 
 
 def get_function_arguments(
@@ -261,7 +260,7 @@ def integrate_docstrings(
   for i, split in enumerate(splits):
     start_line = 0 if i < 1 else splits[i - 1]
     processed += ''.join(lines[start_line:split])
-    pad = ' ' * indentation[fcnodes[i].lineno - 1]
+    pad = ' ' * (indentation[fcnodes[i].lineno - 1] + 2)
     processed += pad_docstring(docstrings[i], pad)
 
   processed += ''.join(lines[splits[-1]:])
