@@ -36,12 +36,14 @@ def get_funclassdef_nodes(file_content) -> List[ast.AST]:
   for node in ast.iter_child_nodes(root):
     if type(node) in [FunctionDef, AsyncFunctionDef, ClassDef]:
       if node.name == '__init__': continue
-      if ast.get_docstring(node) is None: fcnodes.append(node)
+      if ast.get_docstring(node) is None:
+        fcnodes.append(node)
       if type(node) is ClassDef:
         for sub_node in ast.iter_child_nodes(node):
           if type(sub_node) in [FunctionDef, AsyncFunctionDef]:
             if sub_node.name == '__init__': continue
-            if ast.get_docstring(sub_node) is None: fcnodes.append(sub_node)
+            if ast.get_docstring(sub_node) is None:
+              fcnodes.append(sub_node)
 
   return fcnodes
 
@@ -97,8 +99,10 @@ def node_to_str(node: ast.AST) -> str:
     return string
   elif type(node) is ast.Str:
     return repr(node.s)
+  elif type(node) is ast.Attribute:
+    return node.value.id + '.' + node.attr
   else:
-    return None
+    return 'FIXME'
 
 
 def get_function_arguments(
@@ -151,7 +155,7 @@ def generate_function_docstring(
   node: Union[FunctionDef, AsyncFunctionDef]
 ) -> str:
 
-  docstring = '\'\'\'\n\n'
+  docstring = '\'\'\'FIXME\n\n'
 
   arguments = get_function_arguments(node)
   docstring += make_parameters_string(arguments)
@@ -199,7 +203,7 @@ def get_class_attributes(constructor: FunctionDef) -> List[AtrOrArg]:
 
 def generate_class_docstring(cnode: ClassDef) -> str:
 
-  docstring = '\'\'\'\n\n'
+  docstring = '\'\'\'FIXME\n\n'
 
   constructor = get_class_constructor(cnode)
 
@@ -217,11 +221,11 @@ def generate_class_docstring(cnode: ClassDef) -> str:
   return docstring
 
 
-def pad_docstring(docstring: str, pad: int) -> str:
+def pad_docstring(docstring: str, pad: str) -> str:
 
   lines = docstring.splitlines(keepends=True)
   for i in range(len(lines)):
-    if len(lines[i]) > 0:
+    if len(lines[i]) > 1:
       lines[i] = pad + lines[i]
 
   return ''.join(lines)
