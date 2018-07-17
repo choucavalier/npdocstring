@@ -121,9 +121,8 @@ def node_to_str(node: ast.AST) -> str:
     return 'FIXME'
 
 
-def get_function_arguments(
-  node: Union[FunctionDef, AsyncFunctionDef]
-) -> List[AtrOrArg]:
+def get_function_arguments(node: Union[FunctionDef, AsyncFunctionDef]
+                           ) -> List[AtrOrArg]:
 
   arguments = []
 
@@ -131,7 +130,7 @@ def get_function_arguments(
   n_defaults = len(node.args.defaults)
 
   for i, arg in enumerate(node.args.args):
-    if arg.arg == 'self': continue
+    if arg.arg in {'self', 'cls'}: continue
     hint = parse_hint(arg.annotation)
     if i >= n_args - n_defaults:
       default = node_to_str(node.args.defaults[n_args - n_defaults - i])
@@ -154,6 +153,8 @@ def make_atrorarg_string(args: List[AtrOrArg], section_name: str) -> str:
         string += ' : {}'.format(arg.hint)
         if arg.default is not None:
           string += ', optional (default={})'.format(arg.default)
+      else:
+        string += ' : FIXME'
       string += '\n  FIXME\n\n'
 
   return string
@@ -167,9 +168,8 @@ def make_attributes_string(args: List[AtrOrArg]) -> str:
   return make_atrorarg_string(args, 'Attributes')
 
 
-def generate_function_docstring(
-  node: Union[FunctionDef, AsyncFunctionDef]
-) -> str:
+def generate_function_docstring(node: Union[FunctionDef, AsyncFunctionDef]
+                                ) -> str:
 
   docstring = '\'\'\'FIXME'
 
@@ -212,9 +212,7 @@ def get_class_attributes(constructor: FunctionDef) -> List[AtrOrArg]:
       for target in node.targets:
         if type(target) is ast.Attribute:
           attributes.append(
-            AtrOrArg(
-              name=target.attr, hint=None, default=None
-            )
+            AtrOrArg(name=target.attr, hint=None, default=None)
           )
 
   return attributes
@@ -254,24 +252,27 @@ def pad_docstring(docstring: str, pad: str) -> str:
 
 def get_fcnode_last_lineno(
   node: Union[FunctionDef, AsyncFunctionDef, ClassDef],
-  indentation: List[int]
+  indentation: List[int],
+  indentation_spaces: int,
 ) -> int:
 
   lineno = node.body[0].lineno - 1
 
   while (
-    indentation[lineno] == node.lineno + 2 or
-    indentation[lineno] == 0
-  ): lineno -= 1
+    indentation[lineno] == node.lineno + indentation_spaces
+    or indentation[lineno] == 0
+  ):
+    lineno -= 1
 
-  return lineno - 1
+  return lineno
 
 
 def integrate_docstrings(
   docstrings: List[Tuple[ast.AST, str]],
   file_content: str,
   indentation: List[int],
-  fcnodes: List[ast.AST]
+  fcnodes: List[ast.AST],
+  indentation_spaces: int,
 ) -> str:
 
   processed = ''
@@ -280,12 +281,14 @@ def integrate_docstrings(
 
   splits = []
   for node in fcnodes:
-    splits.append(get_fcnode_last_lineno(node, indentation))
+    splits.append(
+      get_fcnode_last_lineno(node, indentation, indentation_spaces)
+    )
 
   for i, split in enumerate(splits):
     start_line = 0 if i < 1 else splits[i - 1]
     processed += ''.join(lines[start_line:split])
-    pad = ' ' * (indentation[fcnodes[i].lineno - 1] + 2)
+    pad = ' ' * (indentation[fcnodes[i].lineno - 1] + indentation_spaces)
     processed += pad_docstring(docstrings[i], pad)
 
   processed += ''.join(lines[splits[-1]:])
@@ -293,7 +296,7 @@ def integrate_docstrings(
   return processed
 
 
-def process_file(file_content: str):
+def process_file(file_content: str, indentation_spaces: int):
 
   indentation = measure_indentation(file_content)
   fcnodes = get_funclassdef_nodes(file_content)
@@ -306,7 +309,7 @@ def process_file(file_content: str):
       docstrings.append(generate_class_docstring(node))
 
   new_file_content = integrate_docstrings(
-    docstrings, file_content, indentation, fcnodes
+    docstrings, file_content, indentation, fcnodes, indentation_spaces,
   )
 
   sys.stdout.write(new_file_content)
@@ -323,12 +326,18 @@ if __name__ == '__main__':
   parser.add_argument(
     '--dir', '-d', help='directory where to apply recursively.'
   )
+  parser.add_argument(
+    '--indentation-spaces',
+    help='how many indentation spaces are used',
+    default=4,
+    type=int
+  )
 
   FLAGS = parser.parse_args()
 
   if FLAGS.dir is None:
     file_content = sys.stdin.read()
-    process_file(file_content)
+    process_file(file_content, FLAGS.indentation_spaces)
   else:
     if not os.path.isdir(FLAGS.dir):
       print('npdocstring: unknown directory', FLAGS.dir)
@@ -338,4 +347,4 @@ if __name__ == '__main__':
           if file.endswith('.py'):
             print(os.path.join(root, file))
             file_content = open(os.path.join(root, file)).read()
-            process_file(file_content)
+            process_file(file_content, FLAGS.indentation_spaces)

@@ -3,7 +3,7 @@ from npdocstring import get_funclassdef_nodes, get_function_arguments
 
 def test_parse_nested_hint():
 
-  file_content = open('tests/samples/hints.py').read()
+  file_content = open('tests/samples/in/hints.py').read()
   fcnodes = get_funclassdef_nodes(file_content)
 
   assert len(fcnodes) == 3
@@ -15,7 +15,7 @@ def test_parse_nested_hint():
 
 def test_parse_union_hint():
 
-  file_content = open('tests/samples/hints.py').read()
+  file_content = open('tests/samples/in/hints.py').read()
   fcnodes = get_funclassdef_nodes(file_content)
 
   assert len(fcnodes) == 3
@@ -27,7 +27,7 @@ def test_parse_union_hint():
 
 def test_parse_complex_hint():
 
-  file_content = open('tests/samples/hints.py').read()
+  file_content = open('tests/samples/in/hints.py').read()
   fcnodes = get_funclassdef_nodes(file_content)
 
   assert len(fcnodes) == 3

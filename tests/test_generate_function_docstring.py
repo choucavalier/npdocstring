@@ -38,7 +38,7 @@ list of int
 
 def test_basic_function():
 
-  file_content = open('tests/samples/basic.py').read()
+  file_content = open('tests/samples/in/basic.py').read()
   fcnodes = get_funclassdef_nodes(file_content)
   assert len(fcnodes) == 4
   assert fcnodes[0].name == 'basic_function'
@@ -48,7 +48,7 @@ def test_basic_function():
 
 def test_default_function():
 
-  file_content = open('tests/samples/defaults.py').read()
+  file_content = open('tests/samples/in/defaults.py').read()
   fcnodes = get_funclassdef_nodes(file_content)
   assert len(fcnodes) == 3
   assert generate_function_docstring(fcnodes[0]) == DEFAULT_FUNCTION_EXPECTED
