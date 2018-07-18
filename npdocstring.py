@@ -35,13 +35,15 @@ def get_funclassdef_nodes(file_content) -> List[ast.AST]:
 
   for node in ast.iter_child_nodes(root):
     if type(node) in [FunctionDef, AsyncFunctionDef, ClassDef]:
-      if node.name == '__init__': continue
+      if node.name.startswith('__') and node.name.endswith('__'):
+        continue
       if ast.get_docstring(node) is None:
         fcnodes.append(node)
       if type(node) is ClassDef:
         for sub_node in ast.iter_child_nodes(node):
           if type(sub_node) in [FunctionDef, AsyncFunctionDef]:
-            if sub_node.name == '__init__': continue
+            if sub_node.name.startswith('__') and sub_node.name.endswith('__'):
+              continue
             if ast.get_docstring(sub_node) is None:
               fcnodes.append(sub_node)
 
