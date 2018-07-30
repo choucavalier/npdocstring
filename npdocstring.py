@@ -35,7 +35,10 @@ def get_funclassdef_nodes(file_content) -> List[ast.AST]:
 
   for node in ast.iter_child_nodes(root):
     if type(node) in [FunctionDef, AsyncFunctionDef, ClassDef]:
-      if node.name.startswith('__') and node.name.endswith('__'):
+      if (
+        (node.name.startswith('__') and node.name.endswith('__')) or
+        node.name.startswith('test_')
+      ):
         continue
       if ast.get_docstring(node) is None:
         fcnodes.append(node)
@@ -123,8 +126,9 @@ def node_to_str(node: ast.AST) -> str:
     return 'FIXME'
 
 
-def get_function_arguments(node: Union[FunctionDef, AsyncFunctionDef]
-                           ) -> List[AtrOrArg]:
+def get_function_arguments(
+    node: Union[FunctionDef, AsyncFunctionDef]
+) -> List[AtrOrArg]:
 
   arguments = []
 
