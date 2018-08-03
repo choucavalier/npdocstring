@@ -1,7 +1,8 @@
 from npdocstring import get_funclassdef_nodes, generate_function_docstring
 
 
-BASIC_FUNCTION_EXPECTED = '''\'\'\'FIXME
+BASIC_FUNCTION_EXPECTED = '''"""
+FIXME
 
 Parameters
 ----------
@@ -13,11 +14,12 @@ Returns
 int
   FIXME
 
-\'\'\'
+"""
 '''
 
 
-DEFAULT_FUNCTION_EXPECTED = '''\'\'\'FIXME
+DEFAULT_FUNCTION_EXPECTED = '''"""
+FIXME
 
 Parameters
 ----------
@@ -32,7 +34,7 @@ Returns
 list of int
   FIXME
 
-\'\'\'
+"""
 '''
 
 

@@ -177,7 +177,7 @@ def make_attributes_string(args: List[AtrOrArg]) -> str:
 def generate_function_docstring(node: Union[FunctionDef, AsyncFunctionDef]
                                 ) -> str:
 
-  docstring = '\'\'\'FIXME'
+  docstring = '"""\nFIXME'
 
   arguments = get_function_arguments(node)
 
@@ -192,7 +192,7 @@ def generate_function_docstring(node: Union[FunctionDef, AsyncFunctionDef]
     docstring += returns + '\n'
     docstring += '  FIXME\n\n'
 
-  docstring += '\'\'\'\n'
+  docstring += '"""\n'
 
   return docstring
 
@@ -226,7 +226,7 @@ def get_class_attributes(constructor: FunctionDef) -> List[AtrOrArg]:
 
 def generate_class_docstring(cnode: ClassDef) -> str:
 
-  docstring = '\'\'\'FIXME'
+  docstring = '"""\nFIXME'
 
   constructor = get_class_constructor(cnode)
 
@@ -241,7 +241,7 @@ def generate_class_docstring(cnode: ClassDef) -> str:
       docstring += make_parameters_string(arguments)
       docstring += make_attributes_string(attributes)
 
-  docstring += '\'\'\'\n'
+  docstring += '"""\n'
 
   return docstring
 
