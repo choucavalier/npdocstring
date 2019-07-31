@@ -14,3 +14,7 @@ def function_with_union_hint(x: Union[List[int], str]) -> bool:
 def function_with_complex_hint(x: List[Union[List[int], str]]) -> bool:
 
   return len(x)
+
+
+def function_with_iterable(x: Union[int, Iterable[int]]) -> Iterabe[int]:
+  return x

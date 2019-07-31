@@ -1,10 +1,9 @@
 [style]
-based_on_style = pep8
 indent_width = 2
-blank_line_before_nested_class_or_def = True
+based_on_style = pep8
 dedent_closing_brackets = True
-continuation_indent_width = 2
-column_limit = 79
 coalesce_brackets = True
-join_multiple_lines = True
 spaces_around_power_operator = True
+split_before_logical_operator = False
+split_before_bitwise_operator = False
+split_complex_comprehension = True

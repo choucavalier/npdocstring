@@ -53,3 +53,20 @@ def function_with_complex_hint(x: List[Union[List[int], str]]) -> bool:
   '''
 
   return len(x)
+
+
+def function_with_iterable(x: Union[int, Iterable[int]]) -> Iterabe[int]:
+  '''FIXME
+
+  Parameters
+  ----------
+  x : int or iterable of int
+    FIXME
+
+  Returns
+  -------
+  iterable of int
+    FIXME
+
+  '''
+  return x
