@@ -1,8 +1,8 @@
 from typing import List, Union
 
 
-def function_with_defaults(a: int, b: str = 'hello') -> List[int]:
-  '''FIXME
+def function_with_defaults(a: int, b: str = "hello") -> List[int]:
+    """FIXME
 
   Parameters
   ----------
@@ -17,13 +17,13 @@ def function_with_defaults(a: int, b: str = 'hello') -> List[int]:
   list of int
     FIXME
 
-  '''
+  """
 
-  print(b, a)
+    print(b, a)
 
 
 def function_with_no_defaults(a: int, b: List[int]) -> int:
-  '''FIXME
+    """FIXME
 
   Parameters
   ----------
@@ -38,14 +38,14 @@ def function_with_no_defaults(a: int, b: List[int]) -> int:
   int
     FIXME
 
-  '''
+  """
 
-  b.append(a)
-  return sum(b)
+    b.append(a)
+    return sum(b)
 
 
 def function_with_none_default(a: str = None) -> Union[int, str]:
-  '''FIXME
+    """FIXME
 
   Parameters
   ----------
@@ -57,6 +57,6 @@ def function_with_none_default(a: str = None) -> Union[int, str]:
   int or str
     FIXME
 
-  '''
+  """
 
-  return a
+    return a

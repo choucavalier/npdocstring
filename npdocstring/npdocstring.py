@@ -1,21 +1,16 @@
 #!/usr/bin/env python3
-
-import os
-import sys
 import ast
-import argparse
+import sys
+from ast import AsyncFunctionDef, ClassDef, FunctionDef
 from collections import namedtuple
-from ast import FunctionDef, AsyncFunctionDef, ClassDef
-from typing import List, Union, Tuple
+from typing import List, Tuple, Union
 
 AtrOrArg = namedtuple("AtrOrArg", ["name", "hint", "default"])
 
 
 def measure_indentation(file_content: str) -> List[int]:
-
     lines = file_content.splitlines()
     indentation = [0 for i in range(len(lines))]
-
     for i, line in enumerate(lines):
         if len(line) == 0:
             indentation[i] = 0
@@ -24,15 +19,12 @@ def measure_indentation(file_content: str) -> List[int]:
             while j < len(line) and line[j] == " ":
                 j += 1
             indentation[i] = j
-
     return indentation
 
 
 def get_funclassdef_nodes(file_content) -> List[ast.AST]:
-
     root = ast.parse(file_content)
     fcnodes = []
-
     for node in ast.iter_child_nodes(root):
         if type(node) in [FunctionDef, AsyncFunctionDef, ClassDef]:
             if (
@@ -50,12 +42,10 @@ def get_funclassdef_nodes(file_content) -> List[ast.AST]:
                             continue
                         if ast.get_docstring(sub_node) is None:
                             fcnodes.append(sub_node)
-
     return fcnodes
 
 
 def parse_hint(node: ast.AST) -> Union[str, None]:
-
     if node is None:
         return None
     elif type(node) is ast.Name:
@@ -95,7 +85,6 @@ def parse_hint(node: ast.AST) -> Union[str, None]:
 
 
 def parse_return_hint(node: Union[FunctionDef, AsyncFunctionDef]) -> str:
-
     if node.returns is None:
         return None
     elif type(node.returns) is ast.NameConstant:
@@ -105,7 +94,6 @@ def parse_return_hint(node: Union[FunctionDef, AsyncFunctionDef]) -> str:
 
 
 def node_to_str(node: ast.AST) -> str:
-
     if type(node) is ast.NameConstant:
         return repr(node.value)
     elif type(node) is ast.Num:
@@ -129,12 +117,9 @@ def node_to_str(node: ast.AST) -> str:
 def get_function_arguments(
     node: Union[FunctionDef, AsyncFunctionDef]
 ) -> List[AtrOrArg]:
-
     arguments = []
-
     n_args = len(node.args.args)
     n_defaults = len(node.args.defaults)
-
     for i, arg in enumerate(node.args.args):
         if arg.arg in {"self", "cls"}:
             continue
@@ -144,14 +129,11 @@ def get_function_arguments(
         else:
             default = None
         arguments.append(AtrOrArg(arg.arg, hint, default))
-
     return arguments
 
 
 def make_atrorarg_string(args: List[AtrOrArg], section_name: str) -> str:
-
     string = ""
-
     if len(args) > 0:
         string += "{}\n{}\n".format(section_name, "-" * len(section_name))
         for arg in args:
@@ -163,7 +145,6 @@ def make_atrorarg_string(args: List[AtrOrArg], section_name: str) -> str:
             else:
                 string += " : FIXME"
             string += "\n    FIXME\n\n"
-
     return string
 
 
@@ -178,43 +159,31 @@ def make_attributes_string(args: List[AtrOrArg]) -> str:
 def generate_function_docstring(
     node: Union[FunctionDef, AsyncFunctionDef]
 ) -> str:
-
     docstring = '"""\nFIXME'
-
     arguments = get_function_arguments(node)
-
     if len(arguments):
         docstring += "\n\n"
         docstring += make_parameters_string(arguments)
-
     returns = parse_return_hint(node)
-
     if returns is not None:
         docstring += "Returns\n-------\n"
         docstring += returns + "\n"
         docstring += "    FIXME\n\n"
-
     docstring += '"""\n'
-
     return docstring
 
 
 def get_class_constructor(cnode: ClassDef) -> FunctionDef:
-
     constructor = None
-
     for node in cnode.body:
         if type(node) is FunctionDef and node.name == "__init__":
             constructor = node
             break
-
     return constructor
 
 
 def get_class_attributes(constructor: FunctionDef) -> List[AtrOrArg]:
-
     attributes = []
-
     for node in constructor.body:
         if type(node) is ast.Assign:
             for target in node.targets:
@@ -222,16 +191,12 @@ def get_class_attributes(constructor: FunctionDef) -> List[AtrOrArg]:
                     attributes.append(
                         AtrOrArg(name=target.attr, hint=None, default=None)
                     )
-
     return attributes
 
 
 def generate_class_docstring(cnode: ClassDef) -> str:
-
     docstring = '"""\nFIXME'
-
     constructor = get_class_constructor(cnode)
-
     if constructor is not None:
         arguments = get_function_arguments(constructor)
         arg_names = [arg.name for arg in arguments]
@@ -239,24 +204,19 @@ def generate_class_docstring(cnode: ClassDef) -> str:
         attributes = [
             attr for attr in attributes if attr.name not in arg_names
         ]
-
         if len(arguments) > 0 or len(attributes) > 0:
             docstring += "\n\n"
             docstring += make_parameters_string(arguments)
             docstring += make_attributes_string(attributes)
-
     docstring += '"""\n'
-
     return docstring
 
 
 def pad_docstring(docstring: str, pad: str) -> str:
-
     lines = docstring.splitlines(keepends=True)
     for i in range(len(lines)):
         if len(lines[i]) > 1:
             lines[i] = pad + lines[i]
-
     return "".join(lines)
 
 
@@ -265,15 +225,12 @@ def get_fcnode_last_lineno(
     indentation: List[int],
     indentation_spaces: int,
 ) -> int:
-
     lineno = node.body[0].lineno - 1
-
     while (
         indentation[lineno] == node.lineno + indentation_spaces
         or indentation[lineno] == 0
     ):
         lineno -= 1
-
     return lineno
 
 
@@ -284,73 +241,32 @@ def integrate_docstrings(
     fcnodes: List[ast.AST],
     indentation_spaces: int,
 ) -> str:
-
     processed = ""
-
     lines = file_content.splitlines(keepends=True)
-
     splits = []
     for node in fcnodes:
         splits.append(
             get_fcnode_last_lineno(node, indentation, indentation_spaces)
         )
-
     for i, split in enumerate(splits):
         start_line = 0 if i < 1 else splits[i - 1]
         processed += "".join(lines[start_line:split])
         pad = " " * (indentation[fcnodes[i].lineno - 1] + indentation_spaces)
         processed += pad_docstring(docstrings[i], pad)
-
     processed += "".join(lines[splits[-1] :])
-
     return processed
 
 
 def process_file(file_content: str, indentation_spaces: int):
-
     indentation = measure_indentation(file_content)
     fcnodes = get_funclassdef_nodes(file_content)
-
     docstrings = []
     for node in fcnodes:
         if type(node) in [FunctionDef, AsyncFunctionDef]:
             docstrings.append(generate_function_docstring(node))
         elif type(node) is ClassDef:
             docstrings.append(generate_class_docstring(node))
-
     new_file_content = integrate_docstrings(
         docstrings, file_content, indentation, fcnodes, indentation_spaces
     )
-
-    sys.stdout.write(new_file_content)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        prog="npdocstring",
-        description="generate missing numpy docstrings automatically "
-        "in python source files.",
-    )
-    parser.add_argument(
-        "--dir", "-d", help="directory where to apply recursively."
-    )
-    parser.add_argument(
-        "--indentation-spaces",
-        help="how many indentation spaces are used",
-        default=4,
-        type=int,
-    )
-    FLAGS = parser.parse_args()
-    if FLAGS.dir is None:
-        file_content = sys.stdin.read()
-        process_file(file_content, FLAGS.indentation_spaces)
-    else:
-        if not os.path.isdir(FLAGS.dir):
-            print("npdocstring: unknown directory", FLAGS.dir)
-        else:
-            for root, dirs, files in os.walk(FLAGS.dir):
-                for file in files:
-                    if file.endswith(".py"):
-                        print(os.path.join(root, file))
-                        file_content = open(os.path.join(root, file)).read()
-                        process_file(file_content, FLAGS.indentation_spaces)
+    return new_file_content

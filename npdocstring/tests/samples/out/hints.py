@@ -2,7 +2,7 @@ from typing import List, Union
 
 
 def function_with_nested_subscript_hint(a: List[List[int]]) -> int:
-  '''FIXME
+    """FIXME
 
   Parameters
   ----------
@@ -14,13 +14,13 @@ def function_with_nested_subscript_hint(a: List[List[int]]) -> int:
   int
     FIXME
 
-  '''
+  """
 
-  return sum(sum(a))
+    return sum(sum(a))
 
 
 def function_with_union_hint(x: Union[List[int], str]) -> bool:
-  '''FIXME
+    """FIXME
 
   Parameters
   ----------
@@ -32,13 +32,13 @@ def function_with_union_hint(x: Union[List[int], str]) -> bool:
   bool
     FIXME
 
-  '''
+  """
 
-  return len(x) > 0
+    return len(x) > 0
 
 
 def function_with_complex_hint(x: List[Union[List[int], str]]) -> bool:
-  '''FIXME
+    """FIXME
 
   Parameters
   ----------
@@ -50,13 +50,13 @@ def function_with_complex_hint(x: List[Union[List[int], str]]) -> bool:
   bool
     FIXME
 
-  '''
+  """
 
-  return len(x)
+    return len(x)
 
 
 def function_with_iterable(x: Union[int, Iterable[int]]) -> Iterabe[int]:
-  '''FIXME
+    """FIXME
 
   Parameters
   ----------
@@ -68,5 +68,5 @@ def function_with_iterable(x: Union[int, Iterable[int]]) -> Iterabe[int]:
   iterable of int
     FIXME
 
-  '''
-  return x
+  """
+    return x
