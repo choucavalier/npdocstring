@@ -257,7 +257,7 @@ def integrate_docstrings(
     return processed
 
 
-def process_file(file_content: str, indentation_spaces: int):
+def process_file(file_content: str, indentation_spaces: int = 4):
     indentation = measure_indentation(file_content)
     fcnodes = get_funclassdef_nodes(file_content)
     docstrings = []
