@@ -28,6 +28,7 @@ if __name__ == "__main__":
         new_file_content = npdocstring.process_file(
             file_content, flags.indentation_spaces
         )
+        sys.stdout.write(new_file_content)
     else:
         if not os.path.isdir(flags.dir):
             print("npdocstring: unknown directory", flags.dir)
@@ -44,3 +45,4 @@ if __name__ == "__main__":
                             f.write(file_content)
                         with open(path, "w") as f:
                             f.write(new_file_content)
+                        print(f"processed {path}")
