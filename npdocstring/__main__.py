@@ -12,9 +12,15 @@ if __name__ == "__main__":
             "in Python source files."
         ),
     )
-    parser.add_argument("file_path", help="Path to the file to process")
     parser.add_argument(
-        "--dir", "-d", help="directory where to apply recursively."
+        "--input",
+        "-i",
+        help="path to input file (stdin if not provided)",
+    )
+    parser.add_argument(
+        "--dir",
+        "-d",
+        help="directory where to apply recursively.",
     )
     parser.add_argument(
         "--indentation-spaces",
@@ -24,7 +30,14 @@ if __name__ == "__main__":
     )
     flags = parser.parse_args()
     if flags.dir is None:
-        file_content = sys.stdin.read()
+        if flags.input is not None:
+            if not os.path.isfile(flags.input):
+                raise FileNotFoundError(flags.input)
+            else:
+                with open(flags.input, "r") as f:
+                    file_content = f.read()
+        else:
+            file_content = sys.stdin.read()
         new_file_content = npdocstring.process_file(
             file_content, flags.indentation_spaces
         )

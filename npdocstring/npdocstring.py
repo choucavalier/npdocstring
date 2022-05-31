@@ -51,34 +51,40 @@ def parse_hint(node: ast.AST) -> Union[str, None]:
     elif type(node) is ast.Name:
         return node.id
     elif type(node) is ast.Subscript:
-        if node.value.id == "Union":
+        if node.value.attr == "Union":
             hint = ""
-            for i in range(len(node.slice.value.elts) - 1):
-                hint += parse_hint(node.slice.value.elts[i]) + " or "
-            hint += parse_hint(node.slice.value.elts[-1])
+            for i in range(len(node.slice.elts) - 1):
+                hint += parse_hint(node.slice.elts[i]) + " or "
+            hint += parse_hint(node.slice.elts[-1])
             return hint
-        elif node.value.id in {"List", "Iterable"}:
-            lowered = node.value.id.lower()
-            if node.slice.value is None:
+        elif node.value.attr in {"List", "Iterable"}:
+            lowered = node.value.attr.lower()
+            if node.slice is None:
                 return lowered
-            return "{} of {}".format(lowered, parse_hint(node.slice.value))
-        elif node.value.id == "Tuple":
-            if type(node.slice.value) is ast.Tuple:
-                if len(node.slice.value.elts) == 0:
+            return "{} of {}".format(lowered, parse_hint(node.slice))
+        elif node.value.attr == "Tuple":
+            if type(node.slice) is ast.Tuple:
+                if len(node.slice.elts) == 0:
                     return "tuple"
-                elif len(node.slice.value.elts) == 1:
-                    return "tuple of " + parse_hint(node.slice.value.elts[0])
+                elif len(node.slice.elts) == 1:
+                    return "tuple of " + parse_hint(node.slice.elts[0])
                 else:
                     hint = "("
-                    for i in range(len(node.slice.value.elts) - 1):
-                        hint += parse_hint(node.slice.value.elts[i]) + ", "
-                    hint += parse_hint(node.slice.value.elts[-1]) + ")"
+                    for i in range(len(node.slice.elts) - 1):
+                        hint += parse_hint(node.slice.elts[i]) + ", "
+                    hint += parse_hint(node.slice.elts[-1]) + ")"
                     return hint
         else:
             return "FIXME"
     elif type(node) is ast.Attribute:
-        return "{}.{}".format(node.value.id, node.attr)
-    elif type(node) is ast.NameConstant:
+        toconcat = list()
+        n = node
+        while not hasattr(n, 'id'):
+            toconcat.append(n.attr)
+            n = n.value
+        toconcat.append(n.id)
+        return ".".join(reversed(toconcat))
+    elif isinstance(node, (ast.Constant, ast.NameConstant)):
         return str(node.value)
     else:
         raise Exception("parse_hint: {}".format(ast.dump(node)))
@@ -94,7 +100,7 @@ def parse_return_hint(node: Union[FunctionDef, AsyncFunctionDef]) -> str:
 
 
 def node_to_str(node: ast.AST) -> str:
-    if type(node) is ast.NameConstant:
+    if isinstance(node, (ast.NameConstant, ast.Constant)):
         return repr(node.value)
     elif type(node) is ast.Num:
         return node.n
