@@ -1,12 +1,15 @@
 # npdocstring
 
-Generate missing docstrings ([numpydoc](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt) style) in your **Python** source code.
+Generate missing docstrings
+([numpydoc](https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt)
+style) in your **Python** source code.
 
 Requirements:
 
-  - `Python 3.5+`
+- `Python 3.10+`
 
-[![Build Status](https://travis-ci.org/tgy/npdocstring.svg?branch=master)](https://travis-ci.org/tgy/npdocstring)
+![Build Status](https://github.com/tgy/npdocstring/actions/workflows/ci.yml/badge.svg)
+<img src="https://github.com/tgy/npdocstring/actions/workflows/ci.yml/badge.svg">
 
 This program will also parse the `Python 3.X.X` type hints and add them to the
 generated docstring.
