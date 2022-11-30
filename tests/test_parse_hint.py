@@ -1,8 +1,11 @@
-from ..npdocstring import get_funclassdef_nodes, get_function_arguments
+from npdocstring.npdocstring import (
+    get_funclassdef_nodes,
+    get_function_arguments,
+)
 
 
 def test_parse_nested_hint():
-    file_content = open("npdocstring/tests/samples/in/hints.py").read()
+    file_content = open("tests/samples/in/hints.py").read()
     fcnodes = get_funclassdef_nodes(file_content)
     assert len(fcnodes) == 4
     args = get_function_arguments(fcnodes[0])
@@ -11,7 +14,7 @@ def test_parse_nested_hint():
 
 
 def test_parse_union_hint():
-    file_content = open("npdocstring/tests/samples/in/hints.py").read()
+    file_content = open("tests/samples/in/hints.py").read()
     fcnodes = get_funclassdef_nodes(file_content)
     assert len(fcnodes) == 4
     args = get_function_arguments(fcnodes[1])
@@ -20,7 +23,7 @@ def test_parse_union_hint():
 
 
 def test_parse_complex_hint():
-    file_content = open("npdocstring/tests/samples/in/hints.py").read()
+    file_content = open("tests/samples/in/hints.py").read()
     fcnodes = get_funclassdef_nodes(file_content)
     assert len(fcnodes) == 4
     args = get_function_arguments(fcnodes[2])
@@ -28,8 +31,8 @@ def test_parse_complex_hint():
     assert args[0].hint == "list of list of int or str"
 
 
-def test_parse_union_hint():
-    file_content = open("npdocstring/tests/samples/in/hints.py").read()
+def test_parse_union_hint_other():
+    file_content = open("tests/samples/in/hints.py").read()
     fcnodes = get_funclassdef_nodes(file_content)
     assert len(fcnodes) == 4
     args = get_function_arguments(fcnodes[3])

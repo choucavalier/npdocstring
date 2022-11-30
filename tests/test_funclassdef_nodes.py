@@ -1,8 +1,8 @@
-from ..npdocstring import get_funclassdef_nodes
+from npdocstring.npdocstring import get_funclassdef_nodes
 
 
 def test_get_funclassdef_nodes():
-    file_content = open("npdocstring/tests/samples/in/basic.py").read()
+    file_content = open("tests/samples/in/basic.py").read()
     fcnodes = get_funclassdef_nodes(file_content)
     assert len(fcnodes) == 4
     assert fcnodes[0].name == "basic_function"

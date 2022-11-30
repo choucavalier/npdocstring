@@ -1,0 +1,28 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  run:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.9',]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: install-poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+      - run: poetry install
+      - name: pytest
+        run: |
+          poetry run pytest -v
+      - name: pre-commit
+        uses: pre-commit/action@v3.0.0

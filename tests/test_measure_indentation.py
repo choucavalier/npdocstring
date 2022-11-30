@@ -1,8 +1,8 @@
-from ..npdocstring import measure_indentation
+from npdocstring.npdocstring import measure_indentation
 
 
 def test_measure_indentation():
-    file_content = open("npdocstring/tests/samples/in/basic.py").read()
+    file_content = open("tests/samples/in/basic.py").read()
     indentation = measure_indentation(file_content)
     assert indentation == [
         0,
