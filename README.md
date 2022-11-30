@@ -9,7 +9,6 @@ Requirements:
 - `Python 3.10+`
 
 ![Build Status](https://github.com/tgy/npdocstring/actions/workflows/ci.yml/badge.svg)
-<img src="https://github.com/tgy/npdocstring/actions/workflows/ci.yml/badge.svg">
 
 This program will also parse the `Python 3.X.X` type hints and add them to the
 generated docstring.
