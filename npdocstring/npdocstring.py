@@ -27,42 +27,46 @@ def get_funclassdef_nodes(file_content) -> List[ast.AST]:
     fcnodes = []
     for node in ast.iter_child_nodes(root):
         if type(node) in [FunctionDef, AsyncFunctionDef, ClassDef]:
-            if (
-                node.name.startswith("__") and node.name.endswith("__")
-            ) or node.name.startswith("test_"):
+            if (node.name.startswith("__") and node.name.endswith("__")) or node.name.startswith("test_"):
                 continue
             if ast.get_docstring(node) is None:
                 fcnodes.append(node)
             if type(node) is ClassDef:
                 for sub_node in ast.iter_child_nodes(node):
                     if type(sub_node) in [FunctionDef, AsyncFunctionDef]:
-                        if sub_node.name.startswith(
-                            "__"
-                        ) and sub_node.name.endswith("__"):
+                        if sub_node.name.startswith("__") and sub_node.name.endswith("__"):
                             continue
                         if ast.get_docstring(sub_node) is None:
                             fcnodes.append(sub_node)
     return fcnodes
 
 
+def get_subscript(node: ast.Subscript) -> str:
+    if isinstance(node.value, ast.Name):
+        return node.value.id
+    elif isinstance(node.value, ast.Attribute):
+        return node.value.attr
+    return "FIXME"
+
+
 def parse_hint(node: ast.AST) -> Union[str, None]:
     if node is None:
         return None
-    elif type(node) is ast.Name:
+    elif isinstance(node, ast.Name):
         return node.id
-    elif type(node) is ast.Subscript:
-        if node.value.attr == "Union":
+    elif isinstance(node, ast.Subscript):
+        if get_subscript(node) == "Union":
             hint = ""
             for i in range(len(node.slice.elts) - 1):
                 hint += parse_hint(node.slice.elts[i]) + " or "
             hint += parse_hint(node.slice.elts[-1])
             return hint
-        elif node.value.attr in {"List", "Iterable"}:
-            lowered = node.value.attr.lower()
+        elif get_subscript(node).lower() in {"list", "iterable"}:
+            lowered = get_subscript(node).lower()
             if node.slice is None:
                 return lowered
             return "{} of {}".format(lowered, parse_hint(node.slice))
-        elif node.value.attr == "Tuple":
+        elif get_subscript(node) == "Tuple":
             if type(node.slice) is ast.Tuple:
                 if len(node.slice.elts) == 0:
                     return "tuple"
@@ -74,12 +78,13 @@ def parse_hint(node: ast.AST) -> Union[str, None]:
                         hint += parse_hint(node.slice.elts[i]) + ", "
                     hint += parse_hint(node.slice.elts[-1]) + ")"
                     return hint
+            return "FIXME"
         else:
             return "FIXME"
     elif type(node) is ast.Attribute:
         toconcat = list()
         n = node
-        while not hasattr(n, 'id'):
+        while not hasattr(n, "id"):
             toconcat.append(n.attr)
             n = n.value
         toconcat.append(n.id)
@@ -120,9 +125,7 @@ def node_to_str(node: ast.AST) -> str:
         return "FIXME"
 
 
-def get_function_arguments(
-    node: Union[FunctionDef, AsyncFunctionDef]
-) -> List[AtrOrArg]:
+def get_function_arguments(node: Union[FunctionDef, AsyncFunctionDef]) -> List[AtrOrArg]:
     arguments = []
     n_args = len(node.args.args)
     n_defaults = len(node.args.defaults)
@@ -162,9 +165,7 @@ def make_attributes_string(args: List[AtrOrArg]) -> str:
     return make_atrorarg_string(args, "Attributes")
 
 
-def generate_function_docstring(
-    node: Union[FunctionDef, AsyncFunctionDef]
-) -> str:
+def generate_function_docstring(node: Union[FunctionDef, AsyncFunctionDef]) -> str:
     docstring = '"""\nFIXME'
     arguments = get_function_arguments(node)
     if len(arguments):
@@ -194,9 +195,7 @@ def get_class_attributes(constructor: FunctionDef) -> List[AtrOrArg]:
         if type(node) is ast.Assign:
             for target in node.targets:
                 if type(target) is ast.Attribute:
-                    attributes.append(
-                        AtrOrArg(name=target.attr, hint=None, default=None)
-                    )
+                    attributes.append(AtrOrArg(name=target.attr, hint=None, default=None))
     return attributes
 
 
@@ -207,9 +206,7 @@ def generate_class_docstring(cnode: ClassDef) -> str:
         arguments = get_function_arguments(constructor)
         arg_names = [arg.name for arg in arguments]
         attributes = get_class_attributes(constructor)
-        attributes = [
-            attr for attr in attributes if attr.name not in arg_names
-        ]
+        attributes = [attr for attr in attributes if attr.name not in arg_names]
         if len(arguments) > 0 or len(attributes) > 0:
             docstring += "\n\n"
             docstring += make_parameters_string(arguments)
@@ -232,10 +229,7 @@ def get_fcnode_last_lineno(
     indentation_spaces: int,
 ) -> int:
     lineno = node.body[0].lineno - 1
-    while (
-        indentation[lineno] == node.lineno + indentation_spaces
-        or indentation[lineno] == 0
-    ):
+    while indentation[lineno] == node.lineno + indentation_spaces or indentation[lineno] == 0:
         lineno -= 1
     return lineno
 
@@ -251,9 +245,7 @@ def integrate_docstrings(
     lines = file_content.splitlines(keepends=True)
     splits = []
     for node in fcnodes:
-        splits.append(
-            get_fcnode_last_lineno(node, indentation, indentation_spaces)
-        )
+        splits.append(get_fcnode_last_lineno(node, indentation, indentation_spaces))
     for i, split in enumerate(splits):
         start_line = 0 if i < 1 else splits[i - 1]
         processed += "".join(lines[start_line:split])
@@ -272,7 +264,5 @@ def process_file(file_content: str, indentation_spaces: int = 4):
             docstrings.append(generate_function_docstring(node))
         elif type(node) is ClassDef:
             docstrings.append(generate_class_docstring(node))
-    new_file_content = integrate_docstrings(
-        docstrings, file_content, indentation, fcnodes, indentation_spaces
-    )
+    new_file_content = integrate_docstrings(docstrings, file_content, indentation, fcnodes, indentation_spaces)
     return new_file_content
