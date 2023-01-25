@@ -9,7 +9,7 @@ repository = "https://github.com/tgy/npdocstring"
 packages = [{include = "npdocstring"}]
 
 [tool.poetry.dependencies]
-python = "^3.10.6"
+python = ">=3.10.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"
